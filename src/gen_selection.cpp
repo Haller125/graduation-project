@@ -8,7 +8,6 @@ void tournamentSelection(std::vector<std::array<float, NUM_OF_HEURISTICS>>& popu
     std::vector<std::array<float, NUM_OF_HEURISTICS>> newPopulation;
     std::vector<float> newFitness;
 
-    srand ( time(NULL) );
     for (int i = 0; i < POPULATION_SIZE; i++) {
         int first = rand() % POPULATION_SIZE;
         int second = rand() % POPULATION_SIZE;

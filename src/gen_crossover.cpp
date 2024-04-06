@@ -10,7 +10,6 @@ std::array<float, NUM_OF_HEURISTICS> blxCrossover(
         float alpha) {
 
     std::array<float, NUM_OF_HEURISTICS> offspring;
-    srand(time(NULL));
 
     for (int i = 0; i < NUM_OF_HEURISTICS; i++) {
         float minGeneValue = std::min(parent1[i], parent2[i]);

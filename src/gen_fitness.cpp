@@ -7,7 +7,6 @@
 float gen_fitness(std::array<float, NUM_OF_HEURISTICS>& weights) {
     short wins = 0;
 
-    srand ( time(NULL) );
     for (int i = 0; i < NUM_OF_GAMES; i++) {
         bool winner;
         Board newboard;

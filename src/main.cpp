@@ -1,8 +1,7 @@
 #include "gen.h"
 
-using namespace std;
-
 int main() {
-    geneticFunction();
+    int seed = 1234;
+    geneticFunction(seed);
     return 0;
 }

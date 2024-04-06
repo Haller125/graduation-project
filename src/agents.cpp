@@ -27,3 +27,5 @@ float minimaxPlayerH::findMove(Board &board, bool player, int &move, bool &tuzde
     float result = minimaxH.minimaxWithABWithHeuristics(board, this->depth, alpha, beta, player, move, tuzdek);
     return result;
 }
+
+

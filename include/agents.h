@@ -33,4 +33,6 @@ private:
     MinimaxH minimaxH;
 };
 
+
+
 #endif //DIPLOMA_AGENTS_H
