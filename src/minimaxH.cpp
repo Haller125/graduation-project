@@ -148,6 +148,5 @@ float MinimaxH::heuristic1(Board &board, bool p) const {
            (board.getNumOfOddCells(1-p)) * weights[4] +
            (board.getNumOfEvenCells(p)) * weights[5] +
            (this->getNumOfLegalMoves(board,p)) * weights[6] +
-           (this->getNumOfLegalMovesWithDistinctDestination(board, p)) * weights[7] +
-           (board.sockets[K * (p+1) - 1]) * weights[8];
+           (this->getNumOfLegalMovesWithDistinctDestination(board, p)) * weights[7];
 }

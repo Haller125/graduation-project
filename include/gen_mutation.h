@@ -11,10 +11,6 @@
 #include "CONSTANTS.h"
 #include <random>
 
-void setSeedForMutation(int seed);
-
-double gaussianRandom(double mean, double stddev);
-
 void mutatePopulation(std::vector<std::array<float, NUM_OF_HEURISTICS>>& population, float mutationRate);
 
 #endif //DIPLOMA_GEN_MUTATION_H

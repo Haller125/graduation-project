@@ -13,6 +13,7 @@
 #include <vector>
 #include <thread>
 #include <fstream>
+#include <sstream>
 
 void geneticFunction(int seed);
 

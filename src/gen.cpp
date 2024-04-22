@@ -64,20 +64,75 @@ void saveProgress(const std::vector<std::array<float, NUM_OF_HEURISTICS>>& popul
     }
 
     file.close();
+
+    std::ofstream lastGenFile("last_gen.txt");
+    lastGenFile << generation;
+    lastGenFile.close();
+}
+
+void loadProgress(std::vector<std::array<float, NUM_OF_HEURISTICS>>& population, std::vector<float>& fitness, int generation) {
+    std::ifstream file;
+    file.open("progress_" + std::to_string(generation) + ".txt");
+
+    std::string line;
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        std::array<float, NUM_OF_HEURISTICS> individual;
+        for (auto& gene : individual) {
+            iss >> gene;
+        }
+        population.push_back(individual);
+
+        std::string fitnessStr;
+        std::getline(iss, fitnessStr, ':');
+        std::getline(iss, fitnessStr);
+        fitness.push_back(std::stof(fitnessStr));
+    }
+
+    file.close();
+}
+
+void loadLastProgress(std::vector<std::array<float, NUM_OF_HEURISTICS>>& population, std::vector<float>& fitness, int& generation) {
+    // Read the number of the last generation
+    std::ifstream lastGenFile("last_gen.txt");
+    int lastGeneration;
+    lastGenFile >> lastGeneration;
+    lastGenFile.close();
+
+    generation = lastGeneration;
+
+    // Load the last generation
+    loadProgress(population, fitness, lastGeneration);
 }
 
 void geneticFunction(int seed) {
-    setSeedForMutation(seed);
     srand(seed);
     std::vector<std::array<float, NUM_OF_HEURISTICS>> population;
     std::vector<float> fitness;
     fitness.reserve(POPULATION_SIZE);
+    int i = 0;
 
-    initPopulation(population);
+    std::ifstream lastGenFile("last_gen.txt");
+    if (lastGenFile.good()) {
+        loadLastProgress(population, fitness, i);
+        std::cout << "Last saved generation is loaded" << std::endl;
+    } else {
+        initPopulation(population);
+        std::cout << "Initial population are generated" << std::endl;
+    }
+    lastGenFile.close();
 
-    std::cout << "Initial population are generated" << std::endl;
+    for (; i < 100; i++) {
+        srand(12345);
 
-    for (int i = 0; i < 100; i++) {
+        for (int j = 0; j < i; j++) {
+            rand();
+        }
+
+        int subseed = rand();
+
+        srand(subseed%1000);
+
         calcFitness(population, fitness);
         tournamentSelection(population, fitness);
         crossoverPopulation(population);
