@@ -1,3 +1,0 @@
-C:/diploma/cmake-build-debug/CMakeFiles/diploma.dir
-C:/diploma/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/diploma/cmake-build-debug/CMakeFiles/rebuild_cache.dir

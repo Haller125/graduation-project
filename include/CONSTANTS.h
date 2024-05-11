@@ -5,7 +5,8 @@
 #ifndef DIPLOMA_CONSTANTS_H
 #define DIPLOMA_CONSTANTS_H
 
-int const POPULATION_SIZE = 100;
+int const POPULATION_SIZE = 500;
+const int MATING_POOL_SIZE = POPULATION_SIZE / 2;
 int const NUM_OF_HEURISTICS = 9;
 const int NUM_OF_GAMES = 10;
 

@@ -9,7 +9,7 @@ static void initPopulation(std::vector<std::array<float, NUM_OF_HEURISTICS>>& po
         for (int j = 0; j < NUM_OF_HEURISTICS; j++) {
             individual[j] = static_cast<float>(rand() % 10000) / 10000;
         }
-        population.push_back(individual);
+        population[i] = individual;
     }
 }
 
@@ -39,14 +39,12 @@ static void calcFitness(std::vector<std::array<float, NUM_OF_HEURISTICS>>& popul
 
 }
 
-void crossoverPopulation(std::vector<std::array<float, NUM_OF_HEURISTICS>>& population) {
+void crossoverPopulation(std::vector<std::array<float, NUM_OF_HEURISTICS>>& population, std::vector<std::array<float, NUM_OF_HEURISTICS>>& matingPool) {
     std::vector<std::array<float, NUM_OF_HEURISTICS>> newPopulation;
 
-    for (int i = 0; i < population.size(); i += 2) {
-        std::array<float, NUM_OF_HEURISTICS> offspring1 = blxCrossover(population[i], population[i+1], 0.5f);
-        std::array<float, NUM_OF_HEURISTICS> offspring2 = blxCrossover(population[i], population[i+1], 0.5f);
+    for (int i = 0; i < population.size(); i++) {
+        std::array<float, NUM_OF_HEURISTICS> offspring1 = blxCrossover(matingPool[rand() % matingPool.size()], matingPool[rand() % matingPool.size()], 0.5f);
         newPopulation.push_back(offspring1);
-        newPopulation.push_back(offspring2);
     }
 
     population = newPopulation;
@@ -107,9 +105,11 @@ void loadLastProgress(std::vector<std::array<float, NUM_OF_HEURISTICS>>& populat
 
 void geneticFunction(int seed) {
     srand(seed);
-    std::vector<std::array<float, NUM_OF_HEURISTICS>> population;
-    std::vector<float> fitness;
-    fitness.reserve(POPULATION_SIZE);
+    std::vector<std::array<float, NUM_OF_HEURISTICS>> population(POPULATION_SIZE);
+    std::vector<float> fitness(POPULATION_SIZE);
+
+    std::vector<std::array<float, NUM_OF_HEURISTICS>> matingPool;
+
     int i = 0;
 
     std::ifstream lastGenFile("last_gen.txt");
@@ -123,7 +123,7 @@ void geneticFunction(int seed) {
     lastGenFile.close();
 
     for (; i < 100; i++) {
-        srand(12345);
+        srand(seed);
 
         for (int j = 0; j < i; j++) {
             rand();
@@ -131,12 +131,14 @@ void geneticFunction(int seed) {
 
         int subseed = rand();
 
-        srand(subseed%1000);
+        srand(subseed);
 
         calcFitness(population, fitness);
-        tournamentSelection(population, fitness);
-        crossoverPopulation(population);
-        mutatePopulation(population, 0.01f);
+        alternisSelection(population, fitness, matingPool);
+        crossoverPopulation(population, matingPool);
+        mutatePopulation(population, 0.001f);
         saveProgress(population, fitness, i); // Save progress at the end of each generation
+
+        std::cout << "Generation " << i << " is completed" << std::endl;
     }
 }
