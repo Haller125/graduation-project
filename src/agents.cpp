@@ -28,4 +28,16 @@ float minimaxPlayerH::findMove(Board &board, bool player, int &move, bool &tuzde
     return result;
 }
 
+float humanPlayer::findMove(Board &board, bool player, int &move, bool &tuzdek) {
+    std::cout << "Make move: ";
+    std::cin >> move;
 
+    move += (player? K : 0);
+
+    std::cout << "Tuzdek? (1/0): ";
+    int tuzdekInt;
+    std::cin >> tuzdekInt;
+    tuzdek = tuzdekInt;
+
+    return 0;
+}

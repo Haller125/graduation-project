@@ -28,7 +28,7 @@ void alternisSelection (std::vector<std::array<float, NUM_OF_HEURISTICS>>& popul
                         std::vector<std::array<float, NUM_OF_HEURISTICS>>& matingPool) {
     // Create a vector of indices and sort based on fitness
     // Sort indices based on fitness using a lambda function that accesses the fitness array
-    std::vector<int> indices(population.size());
+    std::vector<int> indices(POPULATION_SIZE);
     std::iota(indices.begin(), indices.end(), 0); // Fill indices with 0, 1, 2, ..., n-1
 
     // Sort indices by ascending fitness

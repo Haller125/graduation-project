@@ -8,10 +8,13 @@
 #include <iostream>
 #include <array>
 #include "CONSTANTS.h"
+#include <iostream>
+#include <limits>
+#include <array>
 
 struct Board{
 public:
-    std::array<int, 18> sockets{};
+    std::array<int, K*2> sockets{};
     std::array<int, 2> tuzdeks{};
     std::array<int, 2> kaznas{};
     Board();
@@ -33,7 +36,6 @@ public:
 std::ostream &operator<<(std::ostream &os, const Board &board);
 
 
-int minimaxWithAB(Board &board, int depth, int alpha, int beta, bool player, int &move, bool &tuzdek,
-                  bool isAtsyrau1 = false, bool isAtsyrau2 = false);
+int minimaxWithAB(Board &board, int depth, int alpha, int beta, bool player, int &move, bool &tuzdek);
 
 #endif //DIPLOMA_TOGUZ_H

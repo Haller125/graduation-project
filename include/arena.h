@@ -6,9 +6,11 @@
 #define DIPLOMA_ARENA_H
 #include "agents.h"
 #include <memory>
+#include <iostream>
+#include "toguz.h"
 
 struct Arena {
-    Arena(IPlayer *player1, IPlayer *player2, Board &board);
+    Arena(std::unique_ptr<IPlayer> player1, std::unique_ptr<IPlayer> player2, Board &board);
     bool play();
 private:
     std::unique_ptr<IPlayer> player1;

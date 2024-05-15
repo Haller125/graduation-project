@@ -33,6 +33,11 @@ private:
     MinimaxH minimaxH;
 };
 
+struct humanPlayer : public IPlayer {
+public:
+    float findMove(Board &board, bool player, int &move, bool &tuzdek) override;
+};
+
 
 
 #endif //DIPLOMA_AGENTS_H

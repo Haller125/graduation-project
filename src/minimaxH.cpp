@@ -2,90 +2,59 @@
 // Created by qwerty on 06.03.2024.
 //
 
-#include <unordered_set>
-#include <array>
+
 #include "minimaxH.h"
 
 MinimaxH::MinimaxH(std::array<float, NUM_OF_HEURISTICS>& inputWeights) {
     weights = inputWeights;
 }
-float MinimaxH::minimaxWithABWithHeuristics(Board &board, int depth, float alpha, float beta, bool player, int &move, bool &tuzdek,
-                                  bool isAtsyrau1, bool isAtsyrau2) const {
-    bool atsyrau1 = isAtsyrau1;
-    bool atsyrau2 = isAtsyrau2;
+float MinimaxH::minimaxWithABWithHeuristics(Board &board, int depth, float alpha, float beta, bool player, int &move, bool &tuzdek) const {
     if (depth == 0 || board.kaznas[0] > K * N || board.kaznas[1] > K * N) {
         move = -1;
         return this->heuristic1(board);
-    }
-    if (isAtsyrau1 && !player) {
-        Board newBoard(board);
-        if (!newBoard.isMovePossible(player)) {
-            newBoard.atsyrauFunction(player);
-            return newBoard.kaznas[0] > 81 ? 10000000 : -1000000;
-        }
-    }
-    if (isAtsyrau2 && player){
-        Board newBoard(board);
-        if (!newBoard.isMovePossible(player)) {
-            newBoard.atsyrauFunction(player);
-            return newBoard.kaznas[0] > 81 ? 10000000 : -10000000;
-        }
     }
 
     int dummyMove;
     bool dummyTuzdek;
 
-    float sign = (player == 0) ? 1 : -1;
-    float bestValue = -127.0f * sign;
+    float bestValue = (player == 0) ? INT_MIN : INT_MAX;
+
     bool played = false;
     if (!board.isMovePossible(player)) {
         Board copyBoard(board);
-        if (player){ return minimaxWithABWithHeuristics(copyBoard, depth, alpha, beta, 1 - player, dummyMove, dummyTuzdek, true); }
-        else { return minimaxWithABWithHeuristics(copyBoard, depth, alpha, beta, 1 - player, dummyMove, dummyTuzdek, false, true); }
+        copyBoard.atsyrauFunction(!player);
+        return board.kaznas[0] > K*K ? 10000000 : -1000000;
     }
     for (int i = player * K; i < player * K + K; ++i) {
         Board localBoard(board);
-        if (localBoard.sockets[i] == 0) {
-            continue;
-        }
+        if (localBoard.sockets[i] == 0) continue;
         played = true;
         auto target = localBoard.playSocket(i);
-        float withTuzdek = -127.0f * sign;
-        if (localBoard.tuzdekPossible(target, player)) {
+        bool isTuzdekPossible = localBoard.tuzdekPossible(target, player);
+
+        float value = INT_MIN;
+        if (isTuzdekPossible) {
             Board tuzdekBoard(localBoard);
             tuzdekBoard.tuzdeks[player] = target;
             tuzdekBoard.accountSocket(target, player);
 
-            withTuzdek = minimaxWithABWithHeuristics(tuzdekBoard, depth - 1, alpha, beta, 1 - player, dummyMove, dummyTuzdek, atsyrau1, atsyrau2);
-        }
-
-        if (beta > alpha) {
+            value = this->minimaxWithABWithHeuristics(tuzdekBoard, depth - 1, alpha, beta, 1 - player, dummyMove, dummyTuzdek);
+        }else {
             localBoard.accountSocket(target, player);
-            float withoutTuzdek = minimaxWithABWithHeuristics(localBoard, depth - 1, alpha, beta, 1 - player, dummyMove, dummyTuzdek, atsyrau1, atsyrau2);
-
-            if (sign * withoutTuzdek > sign * bestValue) {
-                move = i;
-                bestValue = withoutTuzdek;
-                if (player == 0)
-                    alpha = std::max(alpha, bestValue);
-                else
-                    beta = std::min(beta, bestValue);
-            }
-            if (sign * withTuzdek > sign * bestValue) {
-                tuzdek = true;
-                move = i;
-                bestValue = withTuzdek;
-                if (player == 0)
-                    alpha = std::max(alpha, bestValue);
-                else
-                    beta = std::min(beta, bestValue);
-            } else {
-                tuzdek = false;
-            }
-
-            if (beta <= alpha)
-                break;
+            value = this->minimaxWithABWithHeuristics(localBoard, depth - 1, alpha, beta, 1 - player, dummyMove, dummyTuzdek);
         }
+        if (player == 0 && value > bestValue) {  // Maximizing player
+            bestValue = value;
+            move = i;
+            tuzdek = isTuzdekPossible;
+            alpha = std::max(alpha, bestValue);
+        } else if (player == 1 && value < bestValue) {  // Minimizing player
+            bestValue = value;
+            move = i;
+            tuzdek = isTuzdekPossible;
+            beta = std::min(beta, bestValue);
+        }
+        if (beta <= alpha) break;
     }
 
     if (played) {

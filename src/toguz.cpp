@@ -2,9 +2,7 @@
 // Created by qwerty on 06.03.2024.
 //
 
-#include <iostream>
-#include <limits>
-#include <array>
+
 #include "toguz.h"
 
 using namespace std;
@@ -15,7 +13,7 @@ Board::Board() {
     kaznas.fill(0);
 }
 
-Board::Board(std::array<int, 18>& inSocket, std::array<int, 2>& inTuzdek, std::array<int, 2>& inKaznas) {
+Board::Board(std::array<int, 2 * K>& inSocket, std::array<int, 2>& inTuzdek, std::array<int, 2>& inKaznas) {
     sockets = inSocket;
     tuzdeks = inTuzdek;
     kaznas = inKaznas;
@@ -187,6 +185,7 @@ ostream &operator<<(ostream &os, const Board &board) {
         os << "-" << (i + 1) << "-\t";
     }
     os << endl;
+    return os;
 }
 
 int minimax(Board &board, int depth, int player, int &move, bool &tuzdek, bool isAtsyrau = false) {
@@ -255,168 +254,54 @@ int minimax(Board &board, int depth, int player, int &move, bool &tuzdek, bool i
     }
 }
 
-float minimaxWithABWithHeurestics(Board &board, int depth, float alpha, float beta, bool player, int &move, bool &tuzdek,
-                                  bool isAtsyrau1 = false, bool isAtsyrau2 = false) {
-    if (depth == 0 || board.kaznas[0] > K * N || board.kaznas[1] > K * N) {
-        move = -1;
-        return board.heurestic1(); //board.kaznas[0] - board.kaznas[1];
-    }
-    if (isAtsyrau1 && !player) {
-        Board newBoard(board);
-        if (!newBoard.isMovePossible(player)) {
-            newBoard.atsyrauFunction(player);
-            return newBoard.kaznas[0] > 81 ? 10000000 : -1000000;
-        }
-    }
-    if (isAtsyrau2 && player){
-        Board newBoard(board);
-        if (!newBoard.isMovePossible(player)) {
-            newBoard.atsyrauFunction(player);
-            return newBoard.kaznas[0] > 81 ? 10000000 : -10000000;
-        }
-    }
 
-    int dummyMove;
-    bool dummyTuzdek;
-
-    float sign = (player == 0) ? 1 : -1;
-    float bestValue = -127.0f * sign;
-    bool played = false;
-    if (!board.isMovePossible(player)) {
-        Board copyBoard(board);
-        return minimaxWithABWithHeurestics(copyBoard, depth, alpha, beta, 1 - player, dummyMove, dummyTuzdek, true);
-    }
-    for (int i = player * K; i < player * K + K; ++i) {
-        Board localBoard(board);
-        if (localBoard.sockets[i] == 0) {
-            continue;
-        }
-        played = true;
-        auto target = localBoard.playSocket(i);
-        float withTuzdek = -127.0f * sign;
-        if (localBoard.tuzdekPossible(target, player)) {
-            Board tuzdekBoard(localBoard);
-            tuzdekBoard.tuzdeks[player] = target;
-            tuzdekBoard.accountSocket(target, player);
-
-            withTuzdek = minimaxWithABWithHeurestics(tuzdekBoard, depth - 1, alpha, beta, 1 - player, dummyMove, dummyTuzdek);
-        }
-
-        if (beta > alpha) {
-            localBoard.accountSocket(target, player);
-            float withoutTuzdek = minimaxWithABWithHeurestics(localBoard, depth - 1, alpha, beta, 1 - player, dummyMove, dummyTuzdek);
-
-            if (sign * withoutTuzdek > sign * bestValue) {
-                move = i;
-                bestValue = withoutTuzdek;
-                if (player == 0)
-                    alpha = std::max(alpha, bestValue);
-                else
-                    beta = std::min(beta, bestValue);
-            }
-            if (sign * withTuzdek > sign * bestValue) {
-                tuzdek = true;
-                move = i;
-                bestValue = withTuzdek;
-                if (player == 0)
-                    alpha = std::max(alpha, bestValue);
-                else
-                    beta = std::min(beta, bestValue);
-            } else {
-                tuzdek = false;
-            }
-
-            if (beta <= alpha)
-                break;
-        }
-    }
-
-    if (played) {
-        return bestValue;
-    } else {
-        move = -1;
-        return (float)board.kaznas[0];
-    }
-}
-
-int minimaxWithAB(Board &board, int depth, int alpha, int beta, bool player, int &move, bool &tuzdek,
-                  bool isAtsyrau1, bool isAtsyrau2) {
-    bool atsyrau1 = isAtsyrau1;
-    bool atsyrau2 = isAtsyrau2;
+int minimaxWithAB(Board &board, int depth, int alpha, int beta, bool player, int &move, bool &tuzdek) {
     if (depth == 0 || board.kaznas[0] > K * N || board.kaznas[1] > K * N) {
         move = -1;
         return board.kaznas[0] - board.kaznas[1];
     }
-    if (isAtsyrau1 && !player) {
-        Board newBoard(board);
-        if (!newBoard.isMovePossible(player)) {
-            newBoard.atsyrauFunction(player);
-            return newBoard.kaznas[0] > 81 ? 10000000 : -1000000;
-        }
-    }
-    if (isAtsyrau2 && player){
-        Board newBoard(board);
-        if (!newBoard.isMovePossible(player)) {
-            newBoard.atsyrauFunction(player);
-            return newBoard.kaznas[0] > 81 ? 10000000 : -10000000;
-        }
-    }
 
     int dummyMove;
     bool dummyTuzdek;
 
-    int sign = (player == 0) ? 1 : -1;
-    int bestValue = -127 * sign;
+    int bestValue = (player == 0) ? INT_MIN : INT_MAX;
     bool played = false;
     if (!board.isMovePossible(player)) {
         Board copyBoard(board);
-        if (player){ return minimaxWithAB(copyBoard, depth, alpha, beta, 1 - player, dummyMove, dummyTuzdek, true); }
-        else { return minimaxWithAB(copyBoard, depth, alpha, beta, 1 - player, dummyMove, dummyTuzdek, false, true); }
-
+        copyBoard.atsyrauFunction(!player);
+        return board.kaznas[0] > K*K ? 10000000 : -1000000;
     }
     for (int i = player * K; i < player * K + K; ++i) {
-        Board localBoard(board);
-        if (localBoard.sockets[i] == 0) {
-            continue;
-        }
+        if (board.sockets[i] == 0) continue;
         played = true;
+        Board localBoard(board);
         auto target = localBoard.playSocket(i);
-        int withTuzdek = -127 * sign;
-        if (localBoard.tuzdekPossible(target, player)) {
+        bool isTuzdekPossible = localBoard.tuzdekPossible(target, player);
+
+        int value = INT_MIN;
+        if (isTuzdekPossible) {
             Board tuzdekBoard(localBoard);
             tuzdekBoard.tuzdeks[player] = target;
             tuzdekBoard.accountSocket(target, player);
 
-            withTuzdek = minimaxWithAB(tuzdekBoard, depth - 1, alpha, beta, 1 - player, dummyMove, dummyTuzdek, atsyrau1, atsyrau2);
-        }
-
-        if (beta > alpha) {
+            value = minimaxWithAB(tuzdekBoard, depth - 1, alpha, beta, !player, dummyMove, dummyTuzdek);
+        } else {
             localBoard.accountSocket(target, player);
-            int withoutTuzdek = minimaxWithAB(localBoard, depth - 1, alpha, beta, 1 - player, dummyMove, dummyTuzdek, atsyrau1, atsyrau2);
-
-            if (sign * withoutTuzdek > sign * bestValue) {
-                move = i;
-                bestValue = withoutTuzdek;
-                if (player == 0)
-                    alpha = std::max(alpha, bestValue);
-                else
-                    beta = std::min(beta, bestValue);
-            }
-            if (sign * withTuzdek > sign * bestValue) {
-                tuzdek = true;
-                move = i;
-                bestValue = withTuzdek;
-                if (player == 0)
-                    alpha = std::max(alpha, bestValue);
-                else
-                    beta = std::min(beta, bestValue);
-            } else {
-                tuzdek = false;
-            }
-
-            if (beta <= alpha)
-                break;
+            value = minimaxWithAB(localBoard, depth - 1, alpha, beta, !player, dummyMove, dummyTuzdek);
         }
+
+        if (player == 0 && value > bestValue) {  // Maximizing player
+            bestValue = value;
+            move = i;
+            tuzdek = isTuzdekPossible;
+            alpha = std::max(alpha, bestValue);
+        } else if (player == 1 && value < bestValue) {  // Minimizing player
+            bestValue = value;
+            move = i;
+            tuzdek = isTuzdekPossible;
+            beta = std::min(beta, bestValue);
+        }
+        if (beta <= alpha) break;  // Alpha-beta pruning
     }
 
     if (played) {
@@ -509,92 +394,6 @@ void withoutAB(const int d1, const int d2) {
         }
 
         cout << board.rotate() << endl;
-    }
-}
-
-void withAB(const int d1, const int d2) {
-
-
-    int move;
-    bool tuzdek;
-
-    int move2;
-    bool tuzdek2;
-
-    Board board;
-
-
-//    char answer;
-//    cout << "Do you want to begin (Y/N)? ";
-//    cin >> answer;
-//    bool firstComp = (answer != 'Y');
-
-    bool atsyrauFor1 = false;
-    bool atsyrauFor2 = false;
-
-    while (true) {
-        auto alpha = (float) std::numeric_limits<int>::min(); // Negative infinity for an int
-        auto beta = (float) std::numeric_limits<int>::max(); // Positive infinity for an int
-
-        auto alphaInt = std::numeric_limits<int>::min(); // Negative infinity for an int
-        auto betaInt = std::numeric_limits<int>::max(); // Positive infinity for an int
-
-        cout << board << endl;
-        if (board.isMovePossible(0)) {
-            busy("Alice");
-            float value1 = minimaxWithABWithHeurestics(board, d1, alpha, beta, 0, move, tuzdek);
-            board.pli(move, tuzdek, 0);
-            cout << "Alice's move: " << (static_cast<int> (move) + 1) << "\t" << tuzdek << "\t" << value1 << endl;
-            unbusy();
-        } else {
-            if (!atsyrauFor1) {
-                atsyrauFor1 = true;
-            } else {
-                board.atsyrauFunction(1);
-                cout << board.rotate();
-                break;
-            }
-        }
-
-        if (board.kaznas[1] > K * N) {
-            cout << "p2 win." << endl;
-            break;
-        } else if (board.kaznas[0] > K * N) {
-            cout << "p1 win." << endl;
-            break;
-        }
-
-        cout << board << endl;
-        cout << "Your turn!!!!!" << "enter the move" << endl;
-        cin >> move2;
-        cout << "enter tuzdek" << endl;
-        cin >> tuzdek2;
-
-        board.pli(move2 - 1 + 9, tuzdek2, 1);
-
-
-//        if (board.isMovePossible(1)) {
-//            busy("Bob");
-//            Board rotated = board.rotate();
-//            int value = minimaxWithAB(board, d2, alphaInt, betaInt, 1, move2, tuzdek2);
-//            if (move == -1) {
-//                cout << "Game ended." << endl;
-//                // TODO determine winner from kaznas
-//                break;
-//            }
-//            board.pli(move2, tuzdek2, 1);
-//            cout << "Bob's move: " << (static_cast<int> (move2) + 1) << " (worst outcome: " << value << ")" << endl;
-//        } else {
-//            if (!atsyrauFor2) {
-//                atsyrauFor2 = true;
-//            } else {
-//                board.atsyrauFunction(0);
-//                cout << board.rotate();
-//                break;
-//            }
-//        }
-//        cout << board.rotate();
-//        unbusy();
     }
 }
 

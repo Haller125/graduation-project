@@ -6,13 +6,14 @@
 #define DIPLOMA_MINIMAXH_H
 #include "toguz.h"
 #include "CONSTANTS.h"
+#include <unordered_set>
+#include <array>
 
 struct MinimaxH{
-    std::array<float, NUM_OF_HEURISTICS> weights;
+    std::array<float, NUM_OF_HEURISTICS> weights{};
 public:
     explicit MinimaxH(std::array<float, NUM_OF_HEURISTICS>& inputWeights);
-    float minimaxWithABWithHeuristics(Board &board, int depth, float alpha, float beta, bool player, int &move, bool &tuzdek,
-                                      bool isAtsyrau1 = false, bool isAtsyrau2 = false) const;
+    float minimaxWithABWithHeuristics(Board &board, int depth, float alpha, float beta, bool player, int &move, bool &tuzdek) const;
 private:
     static int getNumOfLegalMoves(Board &board, bool p);
     static int getNumOfLegalMovesWithDistinctDestination(Board &board, bool p);

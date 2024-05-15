@@ -7,14 +7,14 @@ static void initPopulation(std::vector<std::array<float, NUM_OF_HEURISTICS>>& po
     for (int i = 0; i < POPULATION_SIZE; i++) {
         std::array<float, NUM_OF_HEURISTICS> individual;
         for (int j = 0; j < NUM_OF_HEURISTICS; j++) {
-            individual[j] = static_cast<float>(rand() % 10000) / 10000;
+            individual[j] = (static_cast<float>(rand() % 10000) / 10000) * (rand() % 2 == 0 ? 1 : -1);
         }
         population[i] = individual;
     }
 }
 
 
-static void calcFitness(std::vector<std::array<float, NUM_OF_HEURISTICS>>& population, std::vector<float>& fitness){
+void calcFitness(std::vector<std::array<float, NUM_OF_HEURISTICS>>& population, std::vector<float>& fitness){
     std::vector<float> newFitness(POPULATION_SIZE);
 
     std::vector<std::thread> threads(POPULATION_SIZE);
@@ -32,9 +32,9 @@ static void calcFitness(std::vector<std::array<float, NUM_OF_HEURISTICS>>& popul
 
 //    Time taken: 47208 milliseconds
 //    for(int i = 0; i < POPULATION_SIZE; i++){
-//        newFitness.push_back(gen_fitness(population[i]));
+//          newFitness[i] = gen_fitness(population[i]);
 //    }
-
+//
     fitness = newFitness;
 
 }
@@ -42,7 +42,7 @@ static void calcFitness(std::vector<std::array<float, NUM_OF_HEURISTICS>>& popul
 void crossoverPopulation(std::vector<std::array<float, NUM_OF_HEURISTICS>>& population, std::vector<std::array<float, NUM_OF_HEURISTICS>>& matingPool) {
     std::vector<std::array<float, NUM_OF_HEURISTICS>> newPopulation;
 
-    for (int i = 0; i < population.size(); i++) {
+    for (int i = 0; i < POPULATION_SIZE; i++) {
         std::array<float, NUM_OF_HEURISTICS> offspring1 = blxCrossover(matingPool[rand() % matingPool.size()], matingPool[rand() % matingPool.size()], 0.5f);
         newPopulation.push_back(offspring1);
     }
@@ -54,7 +54,7 @@ void saveProgress(const std::vector<std::array<float, NUM_OF_HEURISTICS>>& popul
     std::ofstream file;
     file.open("progress_" + std::to_string(generation) + ".txt");
 
-    for (int i = 0; i < population.size(); i++) {
+    for (int i = 0; i < POPULATION_SIZE; i++) {
         for (const auto& gene : population[i]) {
             file << gene << " ";
         }
@@ -72,6 +72,9 @@ void loadProgress(std::vector<std::array<float, NUM_OF_HEURISTICS>>& population,
     std::ifstream file;
     file.open("progress_" + std::to_string(generation) + ".txt");
 
+    std::vector<std::array<float, NUM_OF_HEURISTICS>> newPopulation;
+    std::vector<float> newFitness;
+
     std::string line;
     while (std::getline(file, line)) {
         std::istringstream iss(line);
@@ -79,13 +82,16 @@ void loadProgress(std::vector<std::array<float, NUM_OF_HEURISTICS>>& population,
         for (auto& gene : individual) {
             iss >> gene;
         }
-        population.push_back(individual);
+        newPopulation.push_back(individual);
 
         std::string fitnessStr;
         std::getline(iss, fitnessStr, ':');
         std::getline(iss, fitnessStr);
-        fitness.push_back(std::stof(fitnessStr));
+        newFitness.push_back(std::stof(fitnessStr));
     }
+
+    population = newPopulation;
+    fitness = newFitness;
 
     file.close();
 }
@@ -97,7 +103,9 @@ void loadLastProgress(std::vector<std::array<float, NUM_OF_HEURISTICS>>& populat
     lastGenFile >> lastGeneration;
     lastGenFile.close();
 
-    generation = lastGeneration;
+    generation = lastGeneration + 1;
+
+    std::cout << "Last generation: " << lastGeneration << std::endl;
 
     // Load the last generation
     loadProgress(population, fitness, lastGeneration);
