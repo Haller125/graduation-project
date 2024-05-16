@@ -130,7 +130,7 @@ void geneticFunction(int seed) {
     }
     lastGenFile.close();
 
-    for (; i < 100; i++) {
+    for (; i < 50; i++) {
         srand(seed);
 
         for (int j = 0; j < i; j++) {
@@ -142,7 +142,7 @@ void geneticFunction(int seed) {
         srand(subseed);
 
         calcFitness(population, fitness);
-        alternisSelection(population, fitness, matingPool);
+        tournamentSelection(population, fitness, matingPool);
         crossoverPopulation(population, matingPool);
         mutatePopulation(population, 0.001f);
         saveProgress(population, fitness, i); // Save progress at the end of each generation

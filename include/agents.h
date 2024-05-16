@@ -19,7 +19,7 @@ struct IPlayer {
 struct minimaxPlayer : public IPlayer {
     int depth;
 public:
-    minimaxPlayer(int depth);
+    explicit minimaxPlayer(int depth);
     float findMove(Board &board, bool player, int &move, bool &tuzdek) override;
 };
 

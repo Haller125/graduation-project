@@ -4,23 +4,23 @@
 
 #include "gen_selection.h"
 
-void tournamentSelection(std::vector<std::array<float, NUM_OF_HEURISTICS>>& population, std::vector<float>& fitness) {
+void tournamentSelection(std::vector<std::array<float, NUM_OF_HEURISTICS>>& population,
+                         std::vector<float>& fitness,
+                         std::vector<std::array<float, NUM_OF_HEURISTICS>>& matingPool) {
     std::vector<std::array<float, NUM_OF_HEURISTICS>> newPopulation;
     std::vector<float> newFitness;
+    std::vector<std::array<float, NUM_OF_HEURISTICS>> newMatingPool(MATING_POOL_SIZE);
 
-    for (int i = 0; i < POPULATION_SIZE; i++) {
+    for (int i = 0; i < MATING_POOL_SIZE; i++) {
         int first = rand() % POPULATION_SIZE;
         int second = rand() % POPULATION_SIZE;
         if (fitness[first] > fitness[second]) {
-            newPopulation.push_back(population[first]);
-            newFitness.push_back(fitness[first]);
+            newMatingPool[i] = population[first];
         } else {
-            newPopulation.push_back(population[second]);
-            newFitness.push_back(fitness[second]);
+            newMatingPool[i] = population[second];
         }
     }
-    population = newPopulation;
-    fitness = newFitness;
+    matingPool = newMatingPool;
 }
 
 void alternisSelection (std::vector<std::array<float, NUM_OF_HEURISTICS>>& population,
