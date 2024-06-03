@@ -26,52 +26,54 @@ void tournamentSelection(std::vector<std::array<float, NUM_OF_HEURISTICS>>& popu
 void alternisSelection (std::vector<std::array<float, NUM_OF_HEURISTICS>>& population,
                         std::vector<float>& fitness,
                         std::vector<std::array<float, NUM_OF_HEURISTICS>>& matingPool) {
-    // Create a vector of indices and sort based on fitness
-    // Sort indices based on fitness using a lambda function that accesses the fitness array
     std::vector<int> indices(POPULATION_SIZE);
-    std::iota(indices.begin(), indices.end(), 0); // Fill indices with 0, 1, 2, ..., n-1
+    std::iota(indices.begin(), indices.end(), 0);
 
     // Sort indices by ascending fitness
     std::sort(indices.begin(), indices.end(),
               [&](int a, int b) { return fitness[a] < fitness[b]; });
 
     int j = 0;
+    int indicesSize = indices.size();
 
-    int indicesSize = indices.size() - 1;
+    std::vector<int> tempIndices(indicesSize);
 
-    std::vector<int> tempIndices(population.size());
-
-    for (int i = 0; i < indicesSize; ++i) {
-        tempIndices[i] = i%2 == 0 ? indices[indicesSize - j]: indices[j++];
+    // Arrange individuals in alternating fashion: worst, best, 2nd worst, 2nd best, etc.
+    for (int i = 0; i < indicesSize / 2; ++i) {
+        tempIndices[2 * i] = indices[i]; // worst
+        tempIndices[2 * i + 1] = indices[indicesSize - 1 - i]; // best
+    }
+    if (indicesSize % 2 != 0) {
+        tempIndices[indicesSize - 1] = indices[indicesSize / 2];
     }
 
     indices = tempIndices;
 
-    int N = population.size() ;
+    int N = population.size();
     int X = MATING_POOL_SIZE;
     int leftRange, rightRange;
 
     if (X % 2 == 0) {
-        leftRange = X / 2 - 1;
+        leftRange = X / 2;
         rightRange = X / 2;
     } else {
         leftRange = (X - 1) / 2;
-        rightRange = (X - 1) / 2;
+        rightRange = (X + 1) / 2;
     }
 
-    int start = rand() % ((N-leftRange)-rightRange); // Random starting point within the defined range
+    int start = rand() % (N - X + 1); // Random starting point within the defined range
 
     // Clear the mating pool and reserve space
     matingPool.clear();
     matingPool.reserve(X);
 
     // Select individuals for the mating pool in an alternating fashion
-    for (int i = 0; i < leftRange; ++i) {
-        matingPool.push_back(population[indices[start + leftRange - i]]); // from the left side (worst fit)
-        matingPool.push_back(population[indices[start + leftRange + i]]); // from the right side (best fit)
+    for (int i = 0; i <= leftRange; ++i) {
+        matingPool.push_back(population[indices[start + i]]); // from the left side (worst fit)
+        matingPool.push_back(population[indices[start + X - 1 - i]]); // from the right side (best fit)
     }
 
     if (X % 2 != 0) {
-        matingPool.push_back(population[indices[start + leftRange + rightRange]]); // Middle element if X is odd
+        matingPool.push_back(population[indices[start + leftRange]]); // Middle element if X is odd
     }
 }

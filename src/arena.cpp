@@ -5,8 +5,10 @@
 
 #include "arena.h"
 
-Arena::Arena(std::unique_ptr<IPlayer> player1, std::unique_ptr<IPlayer> player2, Board &board)
-        : player1(std::move(player1)), player2(std::move(player2)), board(board) {};
+Arena::Arena(std::unique_ptr<IPlayer> player1, std::unique_ptr<IPlayer> player2, Board &board, bool isRotation)
+        : player1(std::move(player1)), player2(std::move(player2)), board(board) {
+    this->isRotation = isRotation;
+};
 
 bool Arena::play(){
     bool atsyrau[2] {false, false};
@@ -34,13 +36,13 @@ bool Arena::play(){
         }
         currentPlayer = !currentPlayer;
 
-        if (LOGGING) {logGameStatus(currentPlayer, move, tuzdek, isGameFinished);}
+        if (LOGGING) {logGameStatus(currentPlayer, move, isGameFinished);}
     }
 }
 
-void Arena::logGameStatus(bool currentPlayer, int move, bool tuzdek, bool isGameFinished) {
-    std::cout << board.rotate() << std::endl;
-    std::cout << "Player " << currentPlayer << "\tmade a move: " << move << "\twith tuzdek " << tuzdek << std::endl;
+void Arena::logGameStatus(bool currentPlayer, int move, bool isGameFinished) {
+    std::cout << (this->isRotation ? board.rotate() : board) << std::endl;
+    std::cout << "Player " << currentPlayer + 1 << "\tmade a move: " << (move % K) + 1 << std::endl;
     std::cout << "Is game finished? " << isGameFinished << std::endl;
     if (isGameFinished){
         std::cout << "And it is done! Someone prevailed with honor, while other fall in shame" << std::endl;

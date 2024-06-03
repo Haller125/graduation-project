@@ -13,7 +13,7 @@ const int NUM_OF_GAMES = 10;
 const int K = 9; // pits
 const int N = K; // balls per pit
 
-const bool LOGGING = 1;
+const bool LOGGING = 0;
 
 
 #endif //DIPLOMA_CONSTANTS_H

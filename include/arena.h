@@ -10,13 +10,14 @@
 #include "toguz.h"
 
 struct Arena {
-    Arena(std::unique_ptr<IPlayer> player1, std::unique_ptr<IPlayer> player2, Board &board);
+    Arena(std::unique_ptr<IPlayer> player1, std::unique_ptr<IPlayer> player2, Board &board, bool isRotation = true);
     bool play();
 private:
     std::unique_ptr<IPlayer> player1;
     std::unique_ptr<IPlayer> player2;
     Board board;
-    void logGameStatus(bool currentPlayer, int move, bool tuzdek, bool isGameFinished);
+    bool isRotation = true;
+    void logGameStatus(bool currentPlayer, int move, bool isGameFinished);
 };
 
 #endif //DIPLOMA_ARENA_H

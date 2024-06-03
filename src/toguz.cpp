@@ -193,12 +193,10 @@ int minimax(Board &board, int depth, int player, int &move, bool &tuzdek, bool i
         move = -1;
         return board.kaznas[0];
     }
-    if (isAtsyrau) {
-        Board newBoard(board);
-        if (!newBoard.isMovePossible(player)) {
-            newBoard.atsyrauFunction(player);
-            return newBoard.kaznas[0];
-        }
+    if (!board.isMovePossible(player)) {
+        Board copyBoard(board);
+        copyBoard.atsyrauFunction(!player);
+        return board.kaznas[0] > K*K ? 10000000 : -1000000;
     }
 
     int dummyMove;
@@ -207,10 +205,6 @@ int minimax(Board &board, int depth, int player, int &move, bool &tuzdek, bool i
     int sign = (player == 0) ? 1 : -1;
     int bestValue = -127 * sign;
     bool played = false;
-    if (!board.isMovePossible(player)) {
-        Board copyBoard(board);
-        return minimax(copyBoard, depth, 1 - player, dummyMove, dummyTuzdek, true);
-    }
     for (int i = player * K; i < player * K + K; ++i) {
         Board localBoard(board);
         if (localBoard.sockets[i] == 0) {
@@ -259,6 +253,9 @@ int minimaxWithAB(Board &board, int depth, int alpha, int beta, bool player, int
     if (depth == 0 || board.kaznas[0] > K * N || board.kaznas[1] > K * N) {
         move = -1;
         return board.kaznas[0] - board.kaznas[1];
+    }else if (board.kaznas[0] > K * N || board.kaznas[1] > K * N){
+        move = -1;
+        return 100000000;
     }
 
     int dummyMove;

@@ -10,8 +10,8 @@ float gen_fitness(std::array<float, NUM_OF_HEURISTICS>& weights) {
     for (int i = 0; i < NUM_OF_GAMES; i++) {
         bool winner;
         Board newboard;
-        int depthForRegMinMax = (rand() % 3) + 5;
-        int depthForHMinMax = (rand() % 3) + 3;
+        int depthForRegMinMax = (rand() % 3) + 4;
+        int depthForHMinMax = (rand() % 3) + 2;
         std::unique_ptr<IPlayer> player1 = std::make_unique<minimaxPlayer>(depthForRegMinMax);
         std::unique_ptr<IPlayer> player2 = std::make_unique<minimaxPlayerH>(weights, depthForHMinMax);
         int coin = rand() % 2;

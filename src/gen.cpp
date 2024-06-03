@@ -142,10 +142,10 @@ void geneticFunction(int seed) {
         srand(subseed);
 
         calcFitness(population, fitness);
-        tournamentSelection(population, fitness, matingPool);
+        alternisSelection(population, fitness, matingPool);
+        saveProgress(population, fitness, i);
         crossoverPopulation(population, matingPool);
-        mutatePopulation(population, 0.001f);
-        saveProgress(population, fitness, i); // Save progress at the end of each generation
+        mutatePopulation(population, 0.0125f);
 
         std::cout << "Generation " << i << " is completed" << std::endl;
     }

@@ -9,9 +9,12 @@ MinimaxH::MinimaxH(std::array<float, NUM_OF_HEURISTICS>& inputWeights) {
     weights = inputWeights;
 }
 float MinimaxH::minimaxWithABWithHeuristics(Board &board, int depth, float alpha, float beta, bool player, int &move, bool &tuzdek) const {
-    if (depth == 0 || board.kaznas[0] > K * N || board.kaznas[1] > K * N) {
+    if (depth == 0) {
         move = -1;
         return this->heuristic1(board);
+    }else if (board.kaznas[0] > K * N || board.kaznas[1] > K * N){
+        move = -1;
+        return board.kaznas[0] > K * N ? 100000000.f: -100000000.f;
     }
 
     int dummyMove;

@@ -31,13 +31,13 @@ float minimaxPlayerH::findMove(Board &board, bool player, int &move, bool &tuzde
 float humanPlayer::findMove(Board &board, bool player, int &move, bool &tuzdek) {
     std::cout << "Make move: ";
     std::cin >> move;
+    move--;
 
     move += (player? K : 0);
 
-    std::cout << "Tuzdek? (1/0): ";
-    int tuzdekInt;
-    std::cin >> tuzdekInt;
-    tuzdek = tuzdekInt;
+    Board copyBoard(board);
+    int target = copyBoard.playSocket(move);
+    tuzdek = copyBoard.tuzdekPossible(target, player);
 
     return 0;
 }
